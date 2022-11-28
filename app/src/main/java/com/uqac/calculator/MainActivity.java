@@ -13,17 +13,20 @@ import javax.script.ScriptException;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView resultText;
-    TextView operationsText;
+    private TextView resultText;
+    private TextView operationsText;
 
-    String operation = "";
+    private String operation = "";
+
+    private boolean leftBracket = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        operationsText = findViewById(R.id.equal);
+        operationsText = findViewById(R.id.operation_text_view);
+        resultText = findViewById(R.id.result_text_view);
     }
 
     public void setOperation(String value) {
@@ -35,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         operation = "";
         operationsText.setText(operation);
         resultText.setText("");
+        leftBracket = false;
     }
 
     public void equalsOnClick(View view) {
@@ -54,7 +58,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void bracketsOnClick(View view)
     {
-
+        if(leftBracket)
+        {
+            setOperation(")");
+            leftBracket = false;
+        }
+        else
+        {
+            setOperation("(");
+            leftBracket = true;
+        }
     }
 
     public void zeroOnClick(View view)
@@ -122,9 +135,17 @@ public class MainActivity extends AppCompatActivity {
         setOperation("-");
     }
 
-    public void powerOfOnClick(View view)
+    public void plusMinusOnClick(View view)
     {
-        setOperation("^");
+        if(operation.length() > 0)
+        {
+            if(operation.charAt(operation.length() - 1) == '-')
+                operation = operation.substring(0, operation.length() - 1);
+            else
+                setOperation("");
+        }
+        else
+            setOperation("-");
     }
 
     public void divisionOnClick(View view)
@@ -135,5 +156,10 @@ public class MainActivity extends AppCompatActivity {
     public void decimalOnClick(View view)
     {
         setOperation(".");
+    }
+
+    public void pourcentOnClick(View view)
+    {
+        setOperation("%");
     }
 }

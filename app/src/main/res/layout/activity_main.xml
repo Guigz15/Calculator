@@ -24,7 +24,6 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="center_vertical|end"
-            android:text="TextView"
             android:textSize="34sp" />
 
         <TextView
@@ -32,7 +31,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical|end"
-            android:text="TextView"
             android:textSize="34sp" />
     </LinearLayout>
 
@@ -73,6 +71,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="clearOnClick"
                 android:text="@string/clear"
                 android:textColor="#E35B5B"
                 android:textSize="34sp" />
@@ -87,6 +86,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="bracketsOnClick"
                 android:text="@string/brackets"
                 android:textColor="#86D663"
                 android:textSize="34sp" />
@@ -101,6 +101,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="pourcentOnClick"
                 android:text="@string/percent"
                 android:textColor="#86D663"
                 android:textSize="34sp" />
@@ -115,6 +116,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="divisionOnClick"
                 android:text="@string/divide"
                 android:textColor="#86D663"
                 android:textSize="34sp" />
@@ -141,6 +143,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="sevenOnClick"
                 android:text="@string/seven"
                 android:textSize="34sp" />
 
@@ -154,6 +157,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="eightOnClick"
                 android:text="@string/eight"
                 android:textSize="34sp" />
 
@@ -167,6 +171,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="nineOnClick"
                 android:text="@string/nine"
                 android:textSize="34sp" />
 
@@ -180,6 +185,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="timesOnClick"
                 android:text="@string/times"
                 android:textColor="#86D663"
                 android:textSize="34sp" />
@@ -206,6 +212,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="fourOnClick"
                 android:text="@string/four"
                 android:textSize="34sp" />
 
@@ -219,6 +226,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="fiveOnClick"
                 android:text="@string/five"
                 android:textSize="34sp" />
 
@@ -232,6 +240,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="sixOnClick"
                 android:text="@string/six"
                 android:textSize="34sp" />
 
@@ -245,6 +254,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="minusOnClick"
                 android:text="@string/minus"
                 android:textColor="#86D663"
                 android:textSize="34sp" />
@@ -271,6 +281,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="oneOnClick"
                 android:text="@string/one"
                 android:textSize="34sp" />
 
@@ -284,6 +295,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="twoOnClick"
                 android:text="@string/two"
                 android:textSize="34sp" />
 
@@ -297,6 +309,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="threeOnClick"
                 android:text="@string/three"
                 android:textSize="34sp" />
 
@@ -310,6 +323,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="plusOnClick"
                 android:text="@string/plus"
                 android:textColor="#86D663"
                 android:textSize="34sp" />
@@ -336,6 +350,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="plusMinusOnClick"
                 android:text="@string/plus_minus"
                 android:textSize="34sp" />
 
@@ -349,6 +364,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="zeroOnClick"
                 android:text="@string/zero"
                 android:textSize="34sp" />
 
@@ -362,6 +378,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
+                android:onClick="decimalOnClick"
                 android:text="@string/coma"
                 android:textSize="34sp" />
 
@@ -375,6 +392,7 @@
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/equal_button_bg"
+                android:onClick="equalsOnClick"
                 android:text="@string/equal"
                 android:textSize="34sp" />
 
