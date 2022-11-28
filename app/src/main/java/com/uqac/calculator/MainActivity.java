@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -29,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         resultText = findViewById(R.id.result_text_view);
     }
 
-    public void setOperation(String value) {
+    private void setOperation(String value) {
         operation += value;
         operationsText.setText(operation);
     }
@@ -41,14 +40,26 @@ public class MainActivity extends AppCompatActivity {
         leftBracket = false;
     }
 
+    private String getLeftNumberFromPosition(int position) {
+        StringBuilder leftNumber = new StringBuilder();
+        while (position >= 0 && (operation.charAt(position) == '.' || Character.isDigit(operation.charAt(position)))) {
+            leftNumber.insert(0, operation.charAt(position));
+            position--;
+        }
+        return leftNumber.toString();
+    }
+
     public void equalsOnClick(View view) {
         Double result = null;
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("rhino");
 
+        if (operation.contains("%")) {
+            System.out.println(getLeftNumberFromPosition(operation.indexOf("%") - 1));
+        }
+
         try {
             result = (double) engine.eval(operation);
-        } catch (ScriptException e)
-        {
+        } catch (ScriptException e) {
             Toast.makeText(this, "Invalid Input", Toast.LENGTH_SHORT).show();
         }
 
@@ -56,15 +67,11 @@ public class MainActivity extends AppCompatActivity {
             resultText.setText(String.valueOf(result.doubleValue()));
     }
 
-    public void bracketsOnClick(View view)
-    {
-        if(leftBracket)
-        {
+    public void bracketsOnClick(View view) {
+        if (leftBracket) {
             setOperation(")");
             leftBracket = false;
-        }
-        else
-        {
+        } else {
             setOperation("(");
             leftBracket = true;
         }
@@ -158,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         setOperation(".");
     }
 
-    public void pourcentOnClick(View view)
+    public void percentOnClick(View view)
     {
         setOperation("%");
     }
