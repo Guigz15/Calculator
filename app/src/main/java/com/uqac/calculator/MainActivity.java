@@ -12,7 +12,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView resultText;
     private TextView operationsText;
     private String operation = "";
-    private boolean leftBracket = false;
+    private int nbbrackets = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void clearResult() {
         resultText.setText("");
-        leftBracket = false;
+        nbbrackets = 0;
     }
 
     public void clearOperation() {
@@ -132,21 +132,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void bracketsOnClick(View view) {
-        if (leftBracket) {
-            setOperation(")");
-            leftBracket = false;
+        if(nbbrackets == 0 && operation.isEmpty()) {
+            setOperation("(");
+            nbbrackets++;
         } else {
-            if (operation.length() > 0) {
-                if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
-                    operation.charAt(operation.length() - 1) == ')') {
-                    setOperation("*(");
-                } else {
-                    setOperation("(");
-                }
+            if (Character.isDigit(operation.charAt(operation.length() - 1)) && nbbrackets > 0) {
+                setOperation(")");
+                nbbrackets--;
+            } else if (operation.charAt(operation.length() - 1) == ')' && nbbrackets > 0) {
+                setOperation(")");
+                nbbrackets--;
+            } else if (operation.charAt(operation.length() - 1) == ')' && nbbrackets == 0) {
+                setOperation("*(");
+                nbbrackets++;
             } else {
                 setOperation("(");
+                nbbrackets++;
             }
-            leftBracket = true;
         }
     }
 
@@ -257,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
             newOperation.append("(");
             newOperation.append("-");
             newOperation.append(operation);
-            leftBracket = true;
+            nbbrackets++;
         } else {
             if ((operation.charAt(lastSignPosition) == '-' && lastSignPosition == operation.length() - 1 && operation.charAt(lastSignPosition - 1) == '(')
                     || (operation.charAt(lastSignPosition) == '-' && operation.charAt(lastSignPosition - 1) == '(')) {
@@ -269,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
                 newOperation.append("(");
                 newOperation.append("-");
                 newOperation.append(operation.substring(lastSignPosition + 1));
-                leftBracket = true;
+                nbbrackets++;
             }
         }
         operation = newOperation.toString();
@@ -322,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
     {
         if (operation.length() > 0 && Character.isDigit(operation.charAt(operation.length() - 1))) {
             setOperation("^(");
-            leftBracket = true;
+            nbbrackets++;
         }
     }
 }
