@@ -40,23 +40,14 @@ public class MainActivity extends AppCompatActivity {
         leftBracket = false;
     }
 
-    private String getLeftNumberFromPosition(int position) {
-        StringBuilder leftNumber = new StringBuilder();
-        while (position >= 0 && (operation.charAt(position) == '.' || Character.isDigit(operation.charAt(position)))) {
-            leftNumber.insert(0, operation.charAt(position));
-            position--;
-        }
-        return leftNumber.toString();
-    }
-
     public void equalsOnClick(View view) {
         Double result = null;
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("rhino");
 
-        if (operation.contains("%")) {
+        /*if (operation.contains("%")) {
             System.out.println(getLeftNumberFromPosition(operation.indexOf("%") - 1));
         }
-
+        System.out.println(getRightNumberFromPosition(operation.indexOf("+")+1));*/
         try {
             result = (double) engine.eval(operation);
         } catch (ScriptException e) {
@@ -67,13 +58,36 @@ public class MainActivity extends AppCompatActivity {
             resultText.setText(String.valueOf(result.doubleValue()));
     }
 
+    private String getLeftNumberFromPosition(int position) {
+        StringBuilder leftNumber = new StringBuilder();
+        while (position >= 0 && (operation.charAt(position) == '.' || Character.isDigit(operation.charAt(position)))) {
+            leftNumber.insert(0, operation.charAt(position));
+            position--;
+        }
+        return leftNumber.toString();
+    }
+
+    private String getRightNumberFromPosition(int position) {
+        StringBuilder RightNumber = new StringBuilder();
+        while (position <= operation.length() && (operation.charAt(position) == '.' || Character.isDigit(operation.charAt(position)))) {
+            RightNumber.insert(0, operation.charAt(position));
+            position++;
+        }
+        return RightNumber.toString();
+    }
+
     public void bracketsOnClick(View view) {
         if (leftBracket) {
             setOperation(")");
             leftBracket = false;
         } else {
-            setOperation("(");
-            leftBracket = true;
+            if(Character.isDigit(operation.charAt(operation.length() - 1))) {
+                setOperation("*(");
+                leftBracket = true;
+            } else {
+                setOperation("(");
+                leftBracket = true;
+            }
         }
     }
 
@@ -144,15 +158,42 @@ public class MainActivity extends AppCompatActivity {
 
     public void plusMinusOnClick(View view)
     {
-        if(operation.length() > 0)
-        {
-            if(operation.charAt(operation.length() - 1) == '-')
-                operation = operation.substring(0, operation.length() - 1);
-            else
-                setOperation("");
+
+        int lastSign = lastSignInOperation();
+        StringBuilder newOperation = new StringBuilder();
+
+        if (lastSign == -1) {
+            newOperation.append("(");
+            newOperation.append("-");
+            newOperation.append(operation);
+            leftBracket = true;
+        } else {
+            if (operation.charAt(lastSign) == '-') {
+                newOperation.append(operation.substring(0, lastSign-1));
+                newOperation.append(operation.substring(lastSign + 1));
+            } else {
+                newOperation.append(operation.substring(0, lastSign));
+                newOperation.append(operation.charAt(lastSign));
+                newOperation.append("(");
+                newOperation.append("-");
+                newOperation.append(operation.substring(lastSign + 1));
+                leftBracket = true;
+            }
         }
-        else
-            setOperation("-");
+        operation = newOperation.toString();
+        operationsText.setText(operation);
+    }
+
+    public int lastSignInOperation()
+    {
+        int position = operation.length() - 1;
+        while(position >= 0 && Character.isDigit(operation.charAt(position)))
+        {
+            System.out.println("position : " + position);
+            System.out.println("char : " + operation.charAt(position));
+            position--;
+        }
+        return position;
     }
 
     public void divisionOnClick(View view)
