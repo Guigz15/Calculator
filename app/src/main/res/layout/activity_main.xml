@@ -97,12 +97,12 @@
                 android:layout_weight="1" />
 
             <Button
-                android:id="@+id/percent"
+                android:id="@+id/pow"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:background="@drawable/button_bg"
-                android:onClick="percentOnClick"
-                android:text="@string/percent"
+                android:onClick="powOnClick"
+                android:text="@string/pow"
                 android:textColor="#86D663"
                 android:textSize="34sp" />
 
