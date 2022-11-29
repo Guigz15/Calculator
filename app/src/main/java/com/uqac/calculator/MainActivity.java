@@ -6,17 +6,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView resultText;
     private TextView operationsText;
-
     private String operation = "";
-
     private boolean leftBracket = false;
 
     @Override
@@ -30,9 +25,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void setOperation(String value) {
         if(!resultText.getText().toString().isEmpty()) {
-            System.out.println(resultText.getText().toString());
-            operationsText.setText(resultText.getText().toString());
-            operation = resultText.getText().toString();
+            if (Character.isDigit(value.charAt(0))) {
+                clearOperation();
+            } else {
+                operationsText.setText(resultText.getText().toString());
+                operation = resultText.getText().toString();
+            }
             clearResult();
         }
         operation += value;
@@ -54,52 +52,76 @@ public class MainActivity extends AppCompatActivity {
         operationsText.setText(operation);
     }
 
-    private String getLeftNumber(int position) {
-        StringBuilder leftNumber = new StringBuilder();
-        while (position >= 0 && (Character.isDigit(operation.charAt(position)) || operation.charAt(position) == '.')) {
-            leftNumber.append(operation.charAt(position));
-            position--;
-        }
-        return leftNumber.toString();
-    }
+    private double eval(final String str) {
+        return new Object() {
+            int pos = -1, ch;
 
-    private String getRightNumber(int position) {
-        StringBuilder rightNumber = new StringBuilder();
-        while (position < operation.length() && (Character.isDigit(operation.charAt(position)) || operation.charAt(position) == '.')) {
-            rightNumber.append(operation.charAt(position));
-            position++;
-        }
-        return rightNumber.toString();
-    }
+            void nextChar() {
+                ch = (++pos < str.length()) ? str.charAt(pos) : -1;
+            }
 
-    private double calculate(String operation) {
-        Double result = null;
-        ScriptEngine engine = new ScriptEngineManager().getEngineByName("rhino");
+            boolean eat(int charToEat) {
+                while (ch == ' ') nextChar();
+                if (ch == charToEat) {
+                    nextChar();
+                    return true;
+                }
+                return false;
+            }
 
-        try {
-            result = (double) engine.eval(operation);
-        } catch (ScriptException e) {
-            Toast.makeText(this, "Invalid Input", Toast.LENGTH_SHORT).show();
-        }
+            double parse() {
+                nextChar();
+                double x = parseExpression();
+                if (pos < str.length()) throw new RuntimeException("Unexpected: " + (char) ch);
+                return x;
+            }
 
-        if(result != null) {
-            return result;
-        } else {
-            return Double.MAX_VALUE;
-        }
+            double parseExpression() {
+                double x = parseTerm();
+                for (; ; ) {
+                    if (eat('+')) x += parseTerm(); // addition
+                    else if (eat('-')) x -= parseTerm(); // subtraction
+                    else return x;
+                }
+            }
+
+            double parseTerm() {
+                double x = parseFactor();
+                for (; ; ) {
+                    if (eat('*')) x *= parseFactor(); // multiplication
+                    else if (eat('/')) x /= parseFactor(); // division
+                    else return x;
+                }
+            }
+
+            double parseFactor() {
+                if (eat('+')) return +parseFactor(); // unary plus
+                if (eat('-')) return -parseFactor(); // unary minus
+
+                double x;
+                int startPos = this.pos;
+                if (eat('(')) { // parentheses
+                    x = parseExpression();
+                    if (!eat(')')) {
+                        Toast.makeText(getApplicationContext(), "Missing right bracket", Toast.LENGTH_SHORT).show();
+                    }
+                } else if ((ch >= '0' && ch <= '9') || ch == '.') { // numbers
+                    while ((ch >= '0' && ch <= '9') || ch == '.') nextChar();
+                    x = Double.parseDouble(str.substring(startPos, this.pos));
+                } else {
+                    throw new RuntimeException("Unexpected: " + (char) ch);
+                }
+
+                if (eat('^')) x = Math.pow(x, parseFactor()); // exponentiation
+
+                return x;
+            }
+        }.parse();
     }
 
     public void equalsOnClick(View view) {
         if (operation.length() > 0) {
-            if (operation.contains("^")) {
-                int position = operation.indexOf("^");
-                String leftNumber = getLeftNumber(position - 1);
-                String rightNumber = getRightNumber(position + 1);
-                String result = String.valueOf(Math.pow(Double.parseDouble(leftNumber), Double.parseDouble(rightNumber)));
-                operation = operation.replace(leftNumber + "^" + rightNumber, result);
-            }
-
-            double result = calculate(operation);
+            double result = eval(operation);
 
             if (result != Double.MAX_VALUE) {
                 resultText.setText(String.valueOf(result));
@@ -114,13 +136,17 @@ public class MainActivity extends AppCompatActivity {
             setOperation(")");
             leftBracket = false;
         } else {
-            if(Character.isDigit(operation.charAt(operation.length() - 1))) {
-                setOperation("*(");
-                leftBracket = true;
+            if (operation.length() > 0) {
+                if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
+                    operation.charAt(operation.length() - 1) == ')') {
+                    setOperation("*(");
+                } else {
+                    setOperation("(");
+                }
             } else {
                 setOperation("(");
-                leftBracket = true;
             }
+            leftBracket = true;
         }
     }
 
@@ -179,7 +205,8 @@ public class MainActivity extends AppCompatActivity {
         if (operation.length() > 0) {
             if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
                 operation.charAt(operation.length() - 1) == '(' ||
-                operation.charAt(operation.length() - 1) == ')') {
+                operation.charAt(operation.length() - 1) == ')' ||
+                operation.charAt(operation.length() - 1) == '^') {
                 setOperation("+");
             } else {
                 operation = operation.substring(0, operation.length() - 1);
@@ -190,12 +217,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void timesOnClick(View view)
     {
-        if (operation.length() > 0 && operation.charAt(operation.length() - 1) != '(') {
+        if (operation.length() > 0 && operation.charAt(operation.length() - 1) != '(' && operation.charAt(operation.length() - 1) != '^') {
             if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
-                operation.charAt(operation.length() - 1) == ')') {
+                    operation.charAt(operation.length() - 1) == ')') {
                 setOperation("*");
-            } else if (operation.charAt(operation.length() - 2) == '(' &&
-                !Character.isDigit(operation.charAt(operation.length() - 1))) {
+            } else if ((operation.charAt(operation.length() - 2) == '(' ||
+                    operation.charAt(operation.length() - 2) == '^') &&
+                    !Character.isDigit(operation.charAt(operation.length() - 1))) {
                 operation = operation.substring(0, operation.length() - 1);
                 operationsText.setText(operation);
             } else {
@@ -210,7 +238,8 @@ public class MainActivity extends AppCompatActivity {
         if (operation.length() > 0) {
             if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
                     operation.charAt(operation.length() - 1) == '(' ||
-                    operation.charAt(operation.length() - 1) == ')') {
+                    operation.charAt(operation.length() - 1) == ')' ||
+                    operation.charAt(operation.length() - 1) == '^') {
                 setOperation("-");
             } else {
                 operation = operation.substring(0, operation.length() - 1);
@@ -261,12 +290,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void divisionOnClick(View view)
     {
-        if (operation.length() > 0 && operation.charAt(operation.length() - 1) != '(') {
+        if (operation.length() > 0 && operation.charAt(operation.length() - 1) != '(' && operation.charAt(operation.length() - 1) != '^') {
             if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
                     operation.charAt(operation.length() - 1) == ')') {
                 setOperation("/");
-            } else if (operation.charAt(operation.length() - 2) == '(' &&
-                !Character.isDigit(operation.charAt(operation.length() - 1))) {
+            } else if ((operation.charAt(operation.length() - 2) == '(' ||
+                    operation.charAt(operation.length() - 2) == '^') &&
+                    !Character.isDigit(operation.charAt(operation.length() - 1))) {
                 operation = operation.substring(0, operation.length() - 1);
                 operationsText.setText(operation);
             } else {
@@ -291,7 +321,8 @@ public class MainActivity extends AppCompatActivity {
     public void powOnClick(View view)
     {
         if (operation.length() > 0 && Character.isDigit(operation.charAt(operation.length() - 1))) {
-            setOperation("^");
+            setOperation("^(");
+            leftBracket = true;
         }
     }
 }
