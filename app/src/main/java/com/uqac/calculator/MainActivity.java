@@ -58,24 +58,6 @@ public class MainActivity extends AppCompatActivity {
             resultText.setText(String.valueOf(result.doubleValue()));
     }
 
-    private String getLeftNumberFromPosition(int position) {
-        StringBuilder leftNumber = new StringBuilder();
-        while (position >= 0 && (operation.charAt(position) == '.' || Character.isDigit(operation.charAt(position)))) {
-            leftNumber.insert(0, operation.charAt(position));
-            position--;
-        }
-        return leftNumber.toString();
-    }
-
-    private String getRightNumberFromPosition(int position) {
-        StringBuilder RightNumber = new StringBuilder();
-        while (position <= operation.length() && (operation.charAt(position) == '.' || Character.isDigit(operation.charAt(position)))) {
-            RightNumber.insert(0, operation.charAt(position));
-            position++;
-        }
-        return RightNumber.toString();
-    }
-
     public void bracketsOnClick(View view) {
         if (leftBracket) {
             setOperation(")");
@@ -158,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void plusMinusOnClick(View view)
     {
-
         int lastSign = lastSignInOperation();
         StringBuilder newOperation = new StringBuilder();
 
