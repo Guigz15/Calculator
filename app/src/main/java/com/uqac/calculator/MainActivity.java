@@ -6,15 +6,14 @@ import android.graphics.BlurMaskFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import eightbitlab.com.blurview.BlurView;
-import eightbitlab.com.blurview.RenderEffectBlur;
-import eightbitlab.com.blurview.RenderScriptBlur;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,9 +29,26 @@ public class MainActivity extends AppCompatActivity {
 
         operationsText = findViewById(R.id.operation_text_view);
         resultText = findViewById(R.id.result_text_view);
+
+        operationsText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
     }
 
-    /*private void setOperation(String value) {
+    private void setOperation(String value) {
         if(!resultText.getText().toString().isEmpty()) {
             if (Character.isDigit(value.charAt(0))) {
                 clearOperation();
@@ -117,6 +133,31 @@ public class MainActivity extends AppCompatActivity {
                 } else if ((ch >= '0' && ch <= '9') || ch == '.') { // numbers
                     while ((ch >= '0' && ch <= '9') || ch == '.') nextChar();
                     x = Double.parseDouble(str.substring(startPos, this.pos));
+                } else if (ch >= 'a' && ch <= 'z') { // functions
+                    while (ch >= 'a' && ch <= 'z') nextChar();
+                    String func = str.substring(startPos, this.pos);
+                    if (eat('(')) {
+                        x = parseExpression();
+                        if (!eat(')')) throw new RuntimeException("Missing ')' after argument to " + func);
+                    } else {
+                        x = parseFactor();
+                    }
+                    switch (func) {
+                        case "sqrt":
+                            x = Math.sqrt(x);
+                            break;
+                        case "sin":
+                            x = Math.sin(Math.toRadians(x));
+                            break;
+                        case "cos":
+                            x = Math.cos(Math.toRadians(x));
+                            break;
+                        case "tan":
+                            x = Math.tan(Math.toRadians(x));
+                            break;
+                        default:
+                            throw new RuntimeException("Unknown function: " + func);
+                    }
                 } else {
                     throw new RuntimeException("Unexpected: " + (char) ch);
                 }
@@ -139,201 +180,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-    public void bracketsOnClick(View view) {
-        if(nbBrackets == 0 && operation.isEmpty()) {
-            setOperation("(");
-            nbBrackets++;
-        } else {
-            if (Character.isDigit(operation.charAt(operation.length() - 1)) && nbBrackets > 0) {
-                setOperation(")");
-                nbBrackets--;
-            } else if (operation.charAt(operation.length() - 1) == ')' && nbBrackets > 0) {
-                setOperation(")");
-                nbBrackets--;
-            } else if (operation.charAt(operation.length() - 1) == ')' && nbBrackets == 0) {
-                setOperation("*(");
-                nbBrackets++;
-            } else {
-                setOperation("(");
-                nbBrackets++;
-            }
-        }
-    }
-
-    public void zeroOnClick(View view)
-    {
-        setOperation("0");
-    }
-
-    public void oneOnClick(View view)
-    {
-        setOperation("1");
-    }
-
-    public void twoOnClick(View view)
-    {
-        setOperation("2");
-    }
-
-    public void threeOnClick(View view)
-    {
-        setOperation("3");
-    }
-
-    public void fourOnClick(View view)
-    {
-        setOperation("4");
-    }
-
-    public void fiveOnClick(View view)
-    {
-        setOperation("5");
-    }
-
-    public void sixOnClick(View view)
-    {
-        setOperation("6");
-    }
-
-    public void sevenOnClick(View view)
-    {
-        setOperation("7");
-    }
-
-    public void eightOnClick(View view)
-    {
-        setOperation("8");
-    }
-
-    public void nineOnClick(View view)
-    {
-        setOperation("9");
-    }
-
-    public void plusOnClick(View view)
-    {
-        if (operation.length() > 0) {
-            if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
-                operation.charAt(operation.length() - 1) == '(' ||
-                operation.charAt(operation.length() - 1) == ')' ||
-                operation.charAt(operation.length() - 1) == '^') {
-                setOperation("+");
-            } else {
-                operation = operation.substring(0, operation.length() - 1);
-                setOperation("+");
-            }
-        }
-    }
-
-    public void timesOnClick(View view)
-    {
-        if (operation.length() > 0 && operation.charAt(operation.length() - 1) != '(' && operation.charAt(operation.length() - 1) != '^') {
-            if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
-                    operation.charAt(operation.length() - 1) == ')') {
-                setOperation("*");
-            } else if ((operation.charAt(operation.length() - 2) == '(' ||
-                    operation.charAt(operation.length() - 2) == '^') &&
-                    !Character.isDigit(operation.charAt(operation.length() - 1))) {
-                operation = operation.substring(0, operation.length() - 1);
-                operationsText.setText(operation);
-            } else {
-                operation = operation.substring(0, operation.length() - 1);
-                setOperation("*");
-            }
-        }
-    }
-
-    public void minusOnClick(View view)
-    {
-        if (operation.length() > 0) {
-            if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
-                    operation.charAt(operation.length() - 1) == '(' ||
-                    operation.charAt(operation.length() - 1) == ')' ||
-                    operation.charAt(operation.length() - 1) == '^') {
-                setOperation("-");
-            } else {
-                operation = operation.substring(0, operation.length() - 1);
-                setOperation("-");
-            }
-        }
-    }
-
-    public void plusMinusOnClick(View view)
-    {
-        int lastSignPosition = lastSignInOperation();
-        StringBuilder newOperation = new StringBuilder();
-
-        if (lastSignPosition == -1) {
-            newOperation.append("(");
-            newOperation.append("-");
-            newOperation.append(operation);
-            nbBrackets++;
-        } else {
-            if ((operation.charAt(lastSignPosition) == '-' && lastSignPosition == operation.length() - 1 && operation.charAt(lastSignPosition - 1) == '(')
-                    || (operation.charAt(lastSignPosition) == '-' && operation.charAt(lastSignPosition - 1) == '(')) {
-                newOperation.append(operation.substring(0, lastSignPosition-1));
-                newOperation.append(operation.substring(lastSignPosition + 1));
-            } else {
-                newOperation.append(operation.substring(0, lastSignPosition));
-                newOperation.append(operation.charAt(lastSignPosition));
-                newOperation.append("(");
-                newOperation.append("-");
-                newOperation.append(operation.substring(lastSignPosition + 1));
-                nbBrackets++;
-            }
-        }
-        operation = newOperation.toString();
-        operationsText.setText(operation);
-    }
-
-    public int lastSignInOperation()
-    {
-        int position = operation.length() - 1;
-        while(position >= 0 && Character.isDigit(operation.charAt(position)))
-        {
-            System.out.println("position : " + position);
-            System.out.println("char : " + operation.charAt(position));
-            position--;
-        }
-        return position;
-    }
-
-    public void divisionOnClick(View view)
-    {
-        if (operation.length() > 0 && operation.charAt(operation.length() - 1) != '(' && operation.charAt(operation.length() - 1) != '^') {
-            if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
-                    operation.charAt(operation.length() - 1) == ')') {
-                setOperation("/");
-            } else if ((operation.charAt(operation.length() - 2) == '(' ||
-                    operation.charAt(operation.length() - 2) == '^') &&
-                    !Character.isDigit(operation.charAt(operation.length() - 1))) {
-                operation = operation.substring(0, operation.length() - 1);
-                operationsText.setText(operation);
-            } else {
-                operation = operation.substring(0, operation.length() - 1);
-                setOperation("/");
-            }
-        }
-    }
-
-    public void decimalOnClick(View view)
-    {
-        if (operation.length() > 0) {
-            if (Character.isDigit(operation.charAt(operation.length() - 1))) {
-                setOperation(".");
-            } else {
-                operation = operation.substring(0, operation.length() - 1);
-                setOperation(".");
-            }
-        }
-    }
-
-    public void powOnClick(View view)
-    {
-        if (operation.length() > 0 && Character.isDigit(operation.charAt(operation.length() - 1))) {
-            setOperation("^(");
-            nbBrackets++;
-        }
-    }*/
 }
