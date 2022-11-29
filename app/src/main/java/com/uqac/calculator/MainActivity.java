@@ -40,22 +40,60 @@ public class MainActivity extends AppCompatActivity {
         leftBracket = false;
     }
 
-    public void equalsOnClick(View view) {
+    private String getLeftNumber(int position) {
+        StringBuilder leftNumber = new StringBuilder();
+        while (position >= 0 && (Character.isDigit(operation.charAt(position)) || operation.charAt(position) == '.')) {
+            leftNumber.append(operation.charAt(position));
+            position--;
+        }
+        return leftNumber.toString();
+    }
+
+    private String getRightNumber(int position) {
+        StringBuilder rightNumber = new StringBuilder();
+        while (position < operation.length() && (Character.isDigit(operation.charAt(position)) || operation.charAt(position) == '.')) {
+            rightNumber.append(operation.charAt(position));
+            position++;
+        }
+        return rightNumber.toString();
+    }
+
+    private double calculate(String operation) {
         Double result = null;
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("rhino");
 
-        /*if (operation.contains("%")) {
-            System.out.println(getLeftNumberFromPosition(operation.indexOf("%") - 1));
-        }
-        System.out.println(getRightNumberFromPosition(operation.indexOf("+")+1));*/
         try {
             result = (double) engine.eval(operation);
         } catch (ScriptException e) {
             Toast.makeText(this, "Invalid Input", Toast.LENGTH_SHORT).show();
         }
 
-        if(result != null)
-            resultText.setText(String.valueOf(result.doubleValue()));
+        if(result != null) {
+            return result;
+        } else {
+            return Double.MAX_VALUE;
+        }
+    }
+
+
+    public void equalsOnClick(View view) {
+        if (operation.length() > 0) {
+            if (operation.contains("^")) {
+                int position = operation.indexOf("^");
+                String leftNumber = getLeftNumber(position - 1);
+                String rightNumber = getRightNumber(position + 1);
+                String result = String.valueOf(Math.pow(Double.parseDouble(leftNumber), Double.parseDouble(rightNumber)));
+                operation = operation.replace(leftNumber + "^" + rightNumber, result);
+            }
+
+            double result = calculate(operation);
+
+            if (result != Double.MAX_VALUE) {
+                resultText.setText(String.valueOf(result));
+            } else {
+                resultText.setText("ERROR");
+            }
+        }
     }
 
     public void bracketsOnClick(View view) {
@@ -125,17 +163,47 @@ public class MainActivity extends AppCompatActivity {
 
     public void plusOnClick(View view)
     {
-        setOperation("+");
+        if (operation.length() > 0) {
+            if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
+                operation.charAt(operation.length() - 1) == '(' ||
+                operation.charAt(operation.length() - 1) == ')') {
+                setOperation("+");
+            } else {
+                operation = operation.substring(0, operation.length() - 1);
+                setOperation("+");
+            }
+        }
     }
 
     public void timesOnClick(View view)
     {
-        setOperation("*");
+        if (operation.length() > 0 && operation.charAt(operation.length() - 1) != '(') {
+            if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
+                operation.charAt(operation.length() - 1) == ')') {
+                setOperation("*");
+            } else if (operation.charAt(operation.length() - 2) == '(' &&
+                !Character.isDigit(operation.charAt(operation.length() - 1))) {
+                operation = operation.substring(0, operation.length() - 1);
+                operationsText.setText(operation);
+            } else {
+                operation = operation.substring(0, operation.length() - 1);
+                setOperation("*");
+            }
+        }
     }
 
     public void minusOnClick(View view)
     {
-        setOperation("-");
+        if (operation.length() > 0) {
+            if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
+                    operation.charAt(operation.length() - 1) == '(' ||
+                    operation.charAt(operation.length() - 1) == ')') {
+                setOperation("-");
+            } else {
+                operation = operation.substring(0, operation.length() - 1);
+                setOperation("-");
+            }
+        }
     }
 
     public void plusMinusOnClick(View view)
@@ -179,16 +247,37 @@ public class MainActivity extends AppCompatActivity {
 
     public void divisionOnClick(View view)
     {
-        setOperation("/");
+        if (operation.length() > 0 && operation.charAt(operation.length() - 1) != '(') {
+            if (Character.isDigit(operation.charAt(operation.length() - 1)) ||
+                    operation.charAt(operation.length() - 1) == ')') {
+                setOperation("/");
+            } else if (operation.charAt(operation.length() - 2) == '(' &&
+                !Character.isDigit(operation.charAt(operation.length() - 1))) {
+                operation = operation.substring(0, operation.length() - 1);
+                operationsText.setText(operation);
+            } else {
+                operation = operation.substring(0, operation.length() - 1);
+                setOperation("/");
+            }
+        }
     }
 
     public void decimalOnClick(View view)
     {
-        setOperation(".");
+        if (operation.length() > 0) {
+            if (Character.isDigit(operation.charAt(operation.length() - 1))) {
+                setOperation(".");
+            } else {
+                operation = operation.substring(0, operation.length() - 1);
+                setOperation(".");
+            }
+        }
     }
 
-    public void percentOnClick(View view)
+    public void powOnClick(View view)
     {
-        setOperation("%");
+        if (operation.length() > 0 && Character.isDigit(operation.charAt(operation.length() - 1))) {
+            setOperation("^");
+        }
     }
 }
