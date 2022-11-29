@@ -2,17 +2,26 @@ package com.uqac.calculator;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.BlurMaskFilter;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import eightbitlab.com.blurview.BlurView;
+import eightbitlab.com.blurview.RenderEffectBlur;
+import eightbitlab.com.blurview.RenderScriptBlur;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView resultText;
-    private TextView operationsText;
+    private EditText operationsText;
     private String operation = "";
-    private int nbbrackets = 0;
+    private int nbBrackets = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         resultText = findViewById(R.id.result_text_view);
     }
 
-    private void setOperation(String value) {
+    /*private void setOperation(String value) {
         if(!resultText.getText().toString().isEmpty()) {
             if (Character.isDigit(value.charAt(0))) {
                 clearOperation();
@@ -44,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void clearResult() {
         resultText.setText("");
-        nbbrackets = 0;
+        nbBrackets = 0;
     }
 
     public void clearOperation() {
@@ -132,22 +141,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void bracketsOnClick(View view) {
-        if(nbbrackets == 0 && operation.isEmpty()) {
+        if(nbBrackets == 0 && operation.isEmpty()) {
             setOperation("(");
-            nbbrackets++;
+            nbBrackets++;
         } else {
-            if (Character.isDigit(operation.charAt(operation.length() - 1)) && nbbrackets > 0) {
+            if (Character.isDigit(operation.charAt(operation.length() - 1)) && nbBrackets > 0) {
                 setOperation(")");
-                nbbrackets--;
-            } else if (operation.charAt(operation.length() - 1) == ')' && nbbrackets > 0) {
+                nbBrackets--;
+            } else if (operation.charAt(operation.length() - 1) == ')' && nbBrackets > 0) {
                 setOperation(")");
-                nbbrackets--;
-            } else if (operation.charAt(operation.length() - 1) == ')' && nbbrackets == 0) {
+                nbBrackets--;
+            } else if (operation.charAt(operation.length() - 1) == ')' && nbBrackets == 0) {
                 setOperation("*(");
-                nbbrackets++;
+                nbBrackets++;
             } else {
                 setOperation("(");
-                nbbrackets++;
+                nbBrackets++;
             }
         }
     }
@@ -259,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
             newOperation.append("(");
             newOperation.append("-");
             newOperation.append(operation);
-            nbbrackets++;
+            nbBrackets++;
         } else {
             if ((operation.charAt(lastSignPosition) == '-' && lastSignPosition == operation.length() - 1 && operation.charAt(lastSignPosition - 1) == '(')
                     || (operation.charAt(lastSignPosition) == '-' && operation.charAt(lastSignPosition - 1) == '(')) {
@@ -271,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                 newOperation.append("(");
                 newOperation.append("-");
                 newOperation.append(operation.substring(lastSignPosition + 1));
-                nbbrackets++;
+                nbBrackets++;
             }
         }
         operation = newOperation.toString();
@@ -324,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
     {
         if (operation.length() > 0 && Character.isDigit(operation.charAt(operation.length() - 1))) {
             setOperation("^(");
-            nbbrackets++;
+            nbBrackets++;
         }
-    }
+    }*/
 }

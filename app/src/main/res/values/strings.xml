@@ -20,4 +20,5 @@
     <string name="coma">,</string>
     <string name="equal">=</string>
     <string name="one">1</string>
+    <string name="enter_your_calculation">Entrez votre calcul</string>
 </resources>
