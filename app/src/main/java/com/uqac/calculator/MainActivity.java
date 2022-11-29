@@ -40,22 +40,18 @@ public class MainActivity extends AppCompatActivity {
         leftBracket = false;
     }
 
-    private String getLeftNumberFromPosition(int position) {
+    private String getPercentageNumber(int percentPosition) {
         StringBuilder leftNumber = new StringBuilder();
-        while (position >= 0 && (operation.charAt(position) == '.' || Character.isDigit(operation.charAt(position)))) {
-            leftNumber.insert(0, operation.charAt(position));
-            position--;
+        while (percentPosition >= 0 && (operation.charAt(percentPosition) == '.' || Character.isDigit(operation.charAt(percentPosition)))) {
+            leftNumber.insert(0, operation.charAt(percentPosition));
+            percentPosition--;
         }
         return leftNumber.toString();
     }
 
-    public void equalsOnClick(View view) {
+    private double calculate(String operation) {
         Double result = null;
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("rhino");
-
-        if (operation.contains("%")) {
-            System.out.println(getLeftNumberFromPosition(operation.indexOf("%") - 1));
-        }
 
         try {
             result = (double) engine.eval(operation);
@@ -63,8 +59,42 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Invalid Input", Toast.LENGTH_SHORT).show();
         }
 
-        if(result != null)
-            resultText.setText(String.valueOf(result.doubleValue()));
+        if(result != null) {
+            return result;
+        } else {
+            return Double.MAX_VALUE;
+        }
+    }
+
+    public void equalsOnClick(View view) {
+        double result;
+
+        if (operation.contains("%")) {
+            int percentPosition = operation.indexOf("%") - 1;
+            StringBuilder percentNumber = new StringBuilder();
+            while (percentPosition >= 0 && (operation.charAt(percentPosition) == '.' || Character.isDigit(operation.charAt(percentPosition)))) {
+                percentNumber.insert(0, operation.charAt(percentPosition));
+                percentPosition--;
+            }
+
+            int operatorPosition = percentPosition;
+            if (operatorPosition == -1) {
+                result = calculate(percentNumber + "/100");
+            } else {
+                String leftSide = operation.substring(0, operatorPosition);
+                double leftResult = calculate(leftSide);
+                double rightResult = leftResult * Double.parseDouble(percentNumber.toString()) / 100;
+                result = calculate(leftSide + operation.charAt(operatorPosition) + rightResult);
+            }
+        } else {
+            result = calculate(operation);
+        }
+
+        if (result != Double.MAX_VALUE) {
+            resultText.setText(String.valueOf(result));
+        } else {
+            resultText.setText("ERROR");
+        }
     }
 
     public void bracketsOnClick(View view) {
