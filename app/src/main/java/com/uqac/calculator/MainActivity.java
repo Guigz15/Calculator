@@ -29,15 +29,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setOperation(String value) {
+        if(!resultText.getText().toString().isEmpty()) {
+            System.out.println(resultText.getText().toString());
+            operationsText.setText(resultText.getText().toString());
+            operation = resultText.getText().toString();
+            clearResult();
+        }
         operation += value;
         operationsText.setText(operation);
     }
 
     public void clearOnClick(View view) {
-        operation = "";
-        operationsText.setText(operation);
+        clearOperation();
+        clearResult();
+    }
+
+    public void clearResult() {
         resultText.setText("");
         leftBracket = false;
+    }
+
+    public void clearOperation() {
+        operation = "";
+        operationsText.setText(operation);
     }
 
     private String getLeftNumber(int position) {
@@ -74,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
             return Double.MAX_VALUE;
         }
     }
-
 
     public void equalsOnClick(View view) {
         if (operation.length() > 0) {
@@ -208,24 +221,25 @@ public class MainActivity extends AppCompatActivity {
 
     public void plusMinusOnClick(View view)
     {
-        int lastSign = lastSignInOperation();
+        int lastSignPosition = lastSignInOperation();
         StringBuilder newOperation = new StringBuilder();
 
-        if (lastSign == -1) {
+        if (lastSignPosition == -1) {
             newOperation.append("(");
             newOperation.append("-");
             newOperation.append(operation);
             leftBracket = true;
         } else {
-            if (operation.charAt(lastSign) == '-') {
-                newOperation.append(operation.substring(0, lastSign-1));
-                newOperation.append(operation.substring(lastSign + 1));
+            if ((operation.charAt(lastSignPosition) == '-' && lastSignPosition == operation.length() - 1 && operation.charAt(lastSignPosition - 1) == '(')
+                    || (operation.charAt(lastSignPosition) == '-' && operation.charAt(lastSignPosition - 1) == '(')) {
+                newOperation.append(operation.substring(0, lastSignPosition-1));
+                newOperation.append(operation.substring(lastSignPosition + 1));
             } else {
-                newOperation.append(operation.substring(0, lastSign));
-                newOperation.append(operation.charAt(lastSign));
+                newOperation.append(operation.substring(0, lastSignPosition));
+                newOperation.append(operation.charAt(lastSignPosition));
                 newOperation.append("(");
                 newOperation.append("-");
-                newOperation.append(operation.substring(lastSign + 1));
+                newOperation.append(operation.substring(lastSignPosition + 1));
                 leftBracket = true;
             }
         }
