@@ -2,19 +2,11 @@ package com.uqac.calculator;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.BlurMaskFilter;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
+import android.content.Context;
 import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import eightbitlab.com.blurview.BlurView;
-import eightbitlab.com.blurview.RenderEffectBlur;
-import eightbitlab.com.blurview.RenderScriptBlur;
 
 public class MainActivity extends AppCompatActivity {
 
