@@ -49,31 +49,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setOperation(String value) {
-        if(!resultText.getText().toString().isEmpty()) {
-            if (Character.isDigit(value.charAt(0))) {
-                clearOperation();
-            } else {
-                operationsText.setText(resultText.getText().toString());
-                operation = resultText.getText().toString();
-            }
-            clearResult();
-        }
         operation += value;
-        operationsText.setText(operation);
-    }
-
-    public void clearOnClick(View view) {
-        clearOperation();
-        clearResult();
-    }
-
-    public void clearResult() {
-        resultText.setText("");
-        nbBrackets = 0;
-    }
-
-    public void clearOperation() {
-        operation = "";
         operationsText.setText(operation);
     }
 
