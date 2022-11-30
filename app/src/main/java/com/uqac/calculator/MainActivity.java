@@ -1,26 +1,28 @@
 package com.uqac.calculator;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.graphics.BlurMaskFilter;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView resultText;
     private EditText operationsText;
-    private String operation = "";
-    private int nbBrackets = 0;
+    private Button guessButton;
+    private double result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,28 +31,32 @@ public class MainActivity extends AppCompatActivity {
 
         operationsText = findViewById(R.id.operation_text_view);
         resultText = findViewById(R.id.result_text_view);
+        guessButton = findViewById(R.id.guess_result);
 
         operationsText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() > 0) {
+                    resultText.setBackgroundResource(R.drawable.result_text_bg);
+                    resultText.setText("");
+                }
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
-
+            public void afterTextChanged(Editable s) {
             }
         });
-    }
 
-    private void setOperation(String value) {
-        operation += value;
-        operationsText.setText(operation);
+        guessButton.setOnClickListener(v -> {
+            result = checkEntryValidity();
+            if (result != Double.MAX_VALUE) {
+                showDialog();
+            }
+        });
     }
 
     private double eval(final String str) {
@@ -104,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 if (eat('(')) { // parentheses
                     x = parseExpression();
                     if (!eat(')')) {
-                        Toast.makeText(getApplicationContext(), "Missing right bracket", Toast.LENGTH_SHORT).show();
+                        throw new RuntimeException("Missing ')'");
                     }
                 } else if ((ch >= '0' && ch <= '9') || ch == '.') { // numbers
                     while ((ch >= '0' && ch <= '9') || ch == '.') nextChar();
@@ -114,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                     String func = str.substring(startPos, this.pos);
                     if (eat('(')) {
                         x = parseExpression();
-                        if (!eat(')')) throw new RuntimeException("Missing ')' after argument to " + func);
+                        if (!eat(')')) throw new RuntimeException("Missing ')'");
                     } else {
                         x = parseFactor();
                     }
@@ -145,9 +151,35 @@ public class MainActivity extends AppCompatActivity {
         }.parse();
     }
 
+    private double checkEntryValidity() {
+        double result = Double.MAX_VALUE;
+
+        try {
+            result = eval(operationsText.getText().toString());
+        } catch (RuntimeException e) {
+            String errorMessage = e.getMessage();
+            if (errorMessage != null) {
+                if (errorMessage.equals("Missing ')'")) {
+                    Toast.makeText(this, "Manque parenthèse fermante", Toast.LENGTH_LONG).show();
+                    operationsText.setError("Manque parenthèse fermante");
+                } else if (errorMessage.startsWith("Unexpected: ")) {
+                    Toast.makeText(this, "Caractère inattendu: " + errorMessage.substring(12), Toast.LENGTH_LONG).show();
+                    operationsText.setError("Caractère inattendu: " + errorMessage.substring(12));
+                } else if (errorMessage.startsWith("Unknown function: ")) {
+                    Toast.makeText(this, "Fonction inconnue: " + errorMessage.substring(18), Toast.LENGTH_LONG).show();
+                    operationsText.setError("Fonction inconnue: " + errorMessage.substring(18));
+                }
+            } else {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+
     public void equalsOnClick(View view) {
-        if (operation.length() > 0) {
-            double result = eval(operation);
+        if (operationsText.getText().length() > 0) {
+            result = checkEntryValidity();
 
             if (result != Double.MAX_VALUE) {
                 resultText.setText(String.valueOf(result));
@@ -155,5 +187,33 @@ public class MainActivity extends AppCompatActivity {
                 resultText.setText("ERROR");
             }
         }
+    }
+
+    private void showDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_enter_result);
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        EditText resultEditText = dialog.findViewById(R.id.result_edit_text);
+        Button validateButton = dialog.findViewById(R.id.validate_button);
+
+        validateButton.setOnClickListener(v -> {
+            if (resultEditText.getText().length() > 0) {
+                if (resultEditText.getText().toString().equals(String.valueOf(result))) {
+                    Toast.makeText(this, "Bonne réponse", Toast.LENGTH_LONG).show();
+                    resultText.setBackgroundResource(R.drawable.result_correct_answer);
+                } else {
+                    Toast.makeText(this, "Mauvaise réponse", Toast.LENGTH_LONG).show();
+                    resultText.setBackgroundResource(R.drawable.result_wrong_answer);
+                }
+                dialog.dismiss();
+                resultText.setText(String.valueOf(result));
+            } else {
+                Toast.makeText(this, "Veuillez entrer un résultat", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.show();
     }
 }
