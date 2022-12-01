@@ -1,7 +1,11 @@
 package com.uqac.calculator;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -11,8 +15,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
 
 import java.util.Objects;
 
@@ -21,8 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView resultText;
     private EditText operationsText;
-    private Button guessButton;
     private double result;
+    SharedPreferences.Editor prefsEditor;
+    private Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +39,13 @@ public class MainActivity extends AppCompatActivity {
 
         operationsText = findViewById(R.id.operation_text_view);
         resultText = findViewById(R.id.result_text_view);
-        guessButton = findViewById(R.id.guess_result);
+        Button guessButton = findViewById(R.id.guess_result);
+        ImageButton historyButton = findViewById(R.id.historyButton);
+        ImageButton infoButton = findViewById(R.id.infoButton);
+
+        SharedPreferences mPrefs = getSharedPreferences("History", MODE_PRIVATE);
+        prefsEditor = mPrefs.edit();
+        gson = new Gson();
 
         operationsText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -54,10 +68,27 @@ public class MainActivity extends AppCompatActivity {
         guessButton.setOnClickListener(v -> {
             result = checkEntryValidity();
             if (result != Double.MAX_VALUE) {
+                saveCalculationInHistory();
                 showDialog();
             }
         });
+
+        historyButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
+            launcher.launch(intent);
+        });
     }
+
+    ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK) {
+            Intent data = result.getData();
+            if (data != null) {
+                String operationResult = data.getStringExtra("result");
+                operationsText.setText(operationResult);
+                operationsText.setSelection(operationsText.getText().length());
+            }
+        }
+    });
 
     private double eval(final String str) {
         return new Object() {
@@ -183,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (result != Double.MAX_VALUE) {
                 resultText.setText(String.valueOf(result));
+                saveCalculationInHistory();
             } else {
                 resultText.setText("ERROR");
             }
@@ -215,5 +247,12 @@ public class MainActivity extends AppCompatActivity {
 
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.show();
+    }
+
+    private void saveCalculationInHistory() {
+        Calculation calculation = new Calculation(operationsText.getText().toString(), String.valueOf(result));
+        String json = gson.toJson(calculation);
+        prefsEditor.putString(calculation.getId(), json);
+        prefsEditor.commit();
     }
 }
