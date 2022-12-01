@@ -7,4 +7,5 @@
     <string name="informations">informations</string>
     <string name="history">history</string>
     <string name="clear_history">clear_history</string>
+    <string name="result_button">result_button</string>
 </resources>

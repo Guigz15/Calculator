@@ -3,6 +3,8 @@ package com.uqac.calculator;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences.Editor prefsEditor;
     private Gson gson;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +81,13 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
             launcher.launch(intent);
         });
+
+        ImageButton resultUp = findViewById(R.id.result_up);
+        resultUp.setOnClickListener(v -> {
+            operationsText.setText(resultText.getText());
+            operationsText.setSelection(operationsText.getText().length());
+            resultText.setText("");
+        });
     }
 
     ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -84,7 +95,11 @@ public class MainActivity extends AppCompatActivity {
             Intent data = result.getData();
             if (data != null) {
                 String operationResult = data.getStringExtra("result");
-                operationsText.setText(operationResult);
+                if (Double.parseDouble(operationResult) % 1 != 0) {
+                    operationsText.setText(operationResult);
+                } else {
+                    operationsText.setText(operationResult.substring(0, operationResult.indexOf(".")));
+                }
                 operationsText.setSelection(operationsText.getText().length());
             }
         }
@@ -213,7 +228,8 @@ public class MainActivity extends AppCompatActivity {
             result = checkEntryValidity();
 
             if (result != Double.MAX_VALUE) {
-                resultText.setText(String.valueOf(result));
+                if (doubleToInt(result))
+                    resultText.setText(String.valueOf(result));
                 saveCalculationInHistory();
             } else {
                 resultText.setText("ERROR");
@@ -231,15 +247,16 @@ public class MainActivity extends AppCompatActivity {
 
         validateButton.setOnClickListener(v -> {
             if (resultEditText.getText().length() > 0) {
-                if (resultEditText.getText().toString().equals(String.valueOf(result))) {
-                    Toast.makeText(this, "Bonne réponse", Toast.LENGTH_LONG).show();
+                if (result == Double.parseDouble(resultEditText.getText().toString())) {
+                    Toast.makeText(this, "Bonne réponse !", Toast.LENGTH_LONG).show();
                     resultText.setBackgroundResource(R.drawable.result_correct_answer);
                 } else {
-                    Toast.makeText(this, "Mauvaise réponse", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Mauvaise réponse !", Toast.LENGTH_LONG).show();
                     resultText.setBackgroundResource(R.drawable.result_wrong_answer);
                 }
                 dialog.dismiss();
-                resultText.setText(String.valueOf(result));
+                if (doubleToInt(result))
+                    resultText.setText(String.valueOf(result));
             } else {
                 Toast.makeText(this, "Veuillez entrer un résultat", Toast.LENGTH_LONG).show();
             }
@@ -254,5 +271,14 @@ public class MainActivity extends AppCompatActivity {
         String json = gson.toJson(calculation);
         prefsEditor.putString(calculation.getId(), json);
         prefsEditor.commit();
+    }
+
+    private boolean doubleToInt(double toConvert) {
+        if (toConvert % 1 == 0) {
+            resultText.setText(String.valueOf((int) toConvert));
+            return false;
+        } else {
+            return true;
+        }
     }
 }
