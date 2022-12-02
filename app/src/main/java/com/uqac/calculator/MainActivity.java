@@ -13,7 +13,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -23,6 +22,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.uqac.calculator.controller.HistoryActivity;
+import com.uqac.calculator.controller.InformationsActivity;
+import com.uqac.calculator.model.Calculation;
 
 import java.util.Objects;
 
@@ -77,16 +79,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        historyButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
-            launcher.launch(intent);
-        });
-
         ImageButton resultUp = findViewById(R.id.result_up);
         resultUp.setOnClickListener(v -> {
             operationsText.setText(resultText.getText());
             operationsText.setSelection(operationsText.getText().length());
             resultText.setText("");
+        });
+
+        historyButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
+            launcher.launch(intent);
+        });
+
+        infoButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, InformationsActivity.class);
+            startActivity(intent);
         });
     }
 

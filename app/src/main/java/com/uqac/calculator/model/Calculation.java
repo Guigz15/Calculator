@@ -1,4 +1,4 @@
-package com.uqac.calculator;
+package com.uqac.calculator.model;
 
 public class Calculation {
 

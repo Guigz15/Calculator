@@ -1,9 +1,8 @@
-package com.uqac.calculator;
+package com.uqac.calculator.controller;
 
 import static android.app.Activity.RESULT_OK;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +11,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.uqac.calculator.model.Calculation;
+import com.uqac.calculator.R;
 
 import java.util.List;
 

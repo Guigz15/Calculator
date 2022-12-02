@@ -1,4 +1,4 @@
-package com.uqac.calculator;
+package com.uqac.calculator.controller;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,6 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.Gson;
+import com.uqac.calculator.model.Calculation;
+import com.uqac.calculator.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
