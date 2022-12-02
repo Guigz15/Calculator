@@ -11,7 +11,7 @@
     <string name="syntax">Synthaxe</string>
     <string name="syntax_content">L\'expression ne doit pas contenir d\'espace. Elle doit seulement être constitué de chiffres, d\'opérateurs et des fonctions.</string>
     <string name="operators">Opérateurs admis</string>
-    <string name="operators_content">Les opérateurs admis sont les suivants : +, -, * et /.</string>
+    <string name="operators_content">Les opérateurs admis sont les suivants : + , - , * , / et ^.</string>
     <string name="fonctions_admises">Fonctions admises</string>
-    <string name="function_content">Les fonctions admises sont les suivantes : sin, cos, tan et sqrt. Elles doivent toutes être suivies de parenthèses.</string>
+    <string name="function_content">Les fonctions admises sont les suivantes : "\n" &#8226; sin()"\n" &#8226; cos()"\n" &#8226; tan()"\n" &#8226; sqrt()"\n"Elles doivent toutes être suivies de parenthèses.</string>
 </resources>
